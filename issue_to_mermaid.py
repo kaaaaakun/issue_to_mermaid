@@ -1,6 +1,7 @@
 import os
 import requests
 import re
+import argparse
 from urllib.parse import urlparse
 
 # タイトルの特殊文字をエスケープする関数
@@ -76,9 +77,13 @@ def save_mermaid_file(content, content_links, filepath):
 
 # GitHubからデータを取得してMermaid図を生成
 if __name__ == "__main__":
-    repo_url = input("GitHubリポジトリのURLを入力してください: ")
+    parser = argparse.ArgumentParser(description="GitHubリポジトリのIssueからMermaid図を生成します。")
+    parser.add_argument("repo_url", help="GitHubリポジトリのURL（例: https://github.com/owner/repo）")
+    parser.add_argument("-o", "--output", default="mermaid_all_issues.md", help="出力ファイル名（デフォルト: mermaid_all_issues.md）")
 
-    parsed_url = urlparse(repo_url)
+    args = parser.parse_args()
+
+    parsed_url = urlparse(args.repo_url)
     path_parts = parsed_url.path.strip('/').split('/')
     if len(path_parts) != 2:
         raise ValueError("無効なリポジトリのURLです。正しい形式を使用してください。")
@@ -90,5 +95,5 @@ if __name__ == "__main__":
     mermaid_all = generate_mermaid(issues)
     mermaid_all_links = generate_markdown_links(issues)
 
-    save_mermaid_file(mermaid_all, mermaid_all_links, "mermaid_all_issues.md")
+    save_mermaid_file(mermaid_all, mermaid_all_links, args.output)
 
